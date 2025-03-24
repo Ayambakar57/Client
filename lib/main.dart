@@ -1,9 +1,8 @@
-import 'package:client_page/routes/app_router.dart';
-import 'package:client_page/views/splash_screen.dart';
+
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'routes/app_pages.dart';
+import 'package:get/get.dart';
+import 'package:client_page/routes/app_router.dart';
 
 
 void main() {
@@ -14,17 +13,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: Size(375, 812), // Sesuaikan dengan desain Figma
-      minTextAdapt: true,
-      builder: (_, child) {
+
+      designSize: Size(360, 690), // Sesuaikan dengan desain aplikasi
+      builder: (context, child) {
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
-          initialRoute: Routes.SPLASH,
-          getPages: AppPages.pages,
-          home: child,
+          title: 'Hamatech',
+          initialRoute: '/splash',
+          getPages: Routes.routes,
+          theme: ThemeData.light(),
         );
       },
-      child: SplashScreen(), // Halaman awal
     );
   }
 }

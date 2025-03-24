@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../controllers/splash_controller.dart';
 
 class SplashScreen extends StatelessWidget {
-  final SplashController controller = Get.put(SplashController());
+  final SplashController controller = Get.find<SplashController>();
 
   @override
   Widget build(BuildContext context) {
