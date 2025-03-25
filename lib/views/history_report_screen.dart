@@ -24,7 +24,9 @@ class HistoryReportView extends StatelessWidget {
               CustomAppBar(
                 title: "History",
                 rightIcon: "assets/icons/add_btn.svg",
-                rightOnTap: () => Get.offNamed('ScanTools'),
+                rightOnTap:
+                    () { Get.offNamed('ReportInput');
+                }
               ),
               SizedBox(height: 20.h),
 
