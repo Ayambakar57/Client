@@ -1,10 +1,11 @@
+import 'package:client_page/widgets/custom_textfield_login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../controllers/login_controller.dart';
 import '../routes/app_router.dart';
-import '../widgets/custom_textfield.dart';
+
 
 class LoginScreen extends StatelessWidget {
   final LoginController controller = Get.find<LoginController>();
@@ -45,31 +46,17 @@ class LoginScreen extends StatelessWidget {
                   SizedBox(height: 20.h),
 
                   // Input Username
-                  CustomTextField(
-                    hintText: "Username",
-                    icon: Icons.person,
-                    onChanged: (value) => controller.username.value = value,
-                  ),
+                  CustomTextFieldLogin(
+                      hintText: "Username",
+                      iconPath: 'assets/icons/username.svg'),
                   SizedBox(height: 15.h),
 
                   // Input Password dengan ikon mata
-                  Obx(() => CustomTextField(
+                  CustomTextFieldLogin(
                     hintText: "Password",
-                    icon: Icons.lock,
-                    isObscure: !controller.isPasswordVisible.value,
-                    onChanged: (value) => controller.password.value = value,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        controller.isPasswordVisible.value
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: Colors.grey,
-                      ),
-                      onPressed: () {
-                        controller.isPasswordVisible.toggle();
-                      },
-                    ),
-                  )),
+                    iconPath: "assets/icons/password.svg",
+                    isPassword: true,
+                  ),
                   SizedBox(height: 20.h),
 
                   // Tombol Sign In

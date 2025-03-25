@@ -13,8 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-
-      designSize: Size(360, 690), // Sesuaikan dengan desain aplikasi
+      designSize: Size(360, 690),
       builder: (context, child) {
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
