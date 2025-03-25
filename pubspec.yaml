@@ -41,7 +41,7 @@ dependencies:
   flutter_screenutil: ^5.9.0
   shared_preferences: ^2.2.2
   fl_chart: ^0.70.2
-  graphic: ^2.5.1
+
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +66,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/icons/note_icont.svg
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:

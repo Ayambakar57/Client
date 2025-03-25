@@ -1,7 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:client_page/routes/app_router.dart';
+
 
 void main() {
   runApp(MyApp());
