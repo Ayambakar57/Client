@@ -7,7 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import '../controllers/detail_data_controller.dart';
-import '../widgets/custom_app_bar.dart';
+import '../widget_global/custom_app_bar.dart';
 import '../widgets/data_card.dart';
 
 class DetailDataView extends StatefulWidget {
