@@ -1,8 +1,8 @@
-
+import 'package:client_page/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:client_page/routes/app_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 void main() {
@@ -10,17 +10,19 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: Size(360, 690),
+      designSize: const Size(412, 917),
+      minTextAdapt: true,
+      splitScreenMode: false,
       builder: (context, child) {
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Hamatech',
-          initialRoute: '/splash',
-          getPages: Routes.routes,
-          theme: ThemeData.light(),
+          theme: ThemeData(
+            textTheme: GoogleFonts.nunitoTextTheme(),
+          ),
+          initialRoute: Routes.splash,
+          getPages: Routes.pages,
         );
       },
     );
