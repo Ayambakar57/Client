@@ -55,18 +55,16 @@ class LoginView extends StatelessWidget {
                 CustomTextField(
                   hintText: 'Username',
                   svgIcon: 'assets/icons/username.svg',
-                  controller: controller.usernameController,
+                  controller: controller.nameController,
                 ),
                 SizedBox(height: 16.h),
 
-                Obx(() => CustomTextField(
+                CustomTextField(
                   hintText: "Password",
                   svgIcon: 'assets/icons/password.svg',
                   controller: controller.passwordController,
                   isPassword: true,
-                  errorMessage: controller.passwordError.value,
-                  showErrorBorder: false,
-                )),
+                ),
                 SizedBox(height: 12.h),
 
                 Obx(() => Padding(
