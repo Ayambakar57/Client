@@ -47,9 +47,14 @@ class LoginController extends GetxController {
         return;
       }
 
+      // Simpan data login ke SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
       await prefs.setString('userData', jsonEncode(result.user!.toJson()));
+
+      // Simpan client_id untuk filtering company data
+      await prefs.setInt('client_id', result.user!.id);
+      await prefs.setString('username', result.user!.name);
 
       Get.snackbar("Login Berhasil", result.message,
           snackPosition: SnackPosition.TOP);

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class CustomTextField extends StatefulWidget {
+class CustomTextField extends StatelessWidget {
   final String? label;
   final String? hintText;
   final TextEditingController? controller;
@@ -11,8 +10,9 @@ class CustomTextField extends StatefulWidget {
   final TextInputType? keyboardType;
   final String? errorMessage;
   final String? svgIcon;
+  final bool? isPasswordHidden;
+  final VoidCallback? onSuffixTap;
   final Function(String)? onChanged;
-  final bool showErrorBorder; // NEW PARAMETER
 
   const CustomTextField({
     super.key,
@@ -24,101 +24,109 @@ class CustomTextField extends StatefulWidget {
     this.keyboardType,
     this.errorMessage,
     this.svgIcon,
+    this.isPasswordHidden,
+    this.onSuffixTap,
     this.onChanged,
-    this.showErrorBorder = true, // DEFAULT TRUE
   });
 
   @override
-  State<CustomTextField> createState() => _CustomTextFieldState();
-}
-
-class _CustomTextFieldState extends State<CustomTextField> {
-  bool _isPasswordHidden = true;
-
-  @override
   Widget build(BuildContext context) {
-    final showError = widget.showErrorBorder && widget.errorMessage != null;
-    final borderColor = showError ? Colors.red : const Color(0xFF275637);
+    final borderColor =
+    errorMessage == null ? const Color(0xFF275637) : Colors.red;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.label != null)
+        if (label != null)
           Padding(
-            padding: EdgeInsets.only(bottom: 6.h),
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).size.height * 0.008),
             child: Text(
-              widget.label!,
+              label!,
               style: TextStyle(
-                fontSize: 14.sp,
+                fontSize: MediaQuery.of(context).size.width * 0.035,
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
         SizedBox(
-          height: 48.h,
+          height: MediaQuery.of(context).size.height * 0.06,
           child: TextField(
-            controller: widget.controller,
-            obscureText: widget.isPassword ? _isPasswordHidden : false,
-            keyboardType: widget.keyboardType ?? (widget.isNumber ? TextInputType.number : TextInputType.text),
-            style: TextStyle(fontSize: 15.sp, color: Colors.black),
-            onChanged: widget.onChanged,
+            controller: controller,
+            obscureText: isPassword ? (isPasswordHidden ?? true) : false,
+            keyboardType: keyboardType ??
+                (isNumber ? TextInputType.number : TextInputType.text),
+            style: TextStyle(
+                fontSize: MediaQuery.of(context).size.width * 0.037,
+                color: Colors.black),
+            onChanged: onChanged,
             decoration: InputDecoration(
-              hintText: widget.hintText ?? '',
-              hintStyle: TextStyle(fontSize: 15.sp, color: Colors.grey),
+              hintText: hintText ?? '',
+              hintStyle: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width * 0.037,
+                  color: Colors.grey),
               filled: true,
               fillColor: Colors.white,
-              contentPadding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
-              prefixIcon: widget.svgIcon != null
+              contentPadding: EdgeInsets.symmetric(
+                  vertical: MediaQuery.of(context).size.height * 0.02,
+                  horizontal: MediaQuery.of(context).size.width * 0.03),
+              prefixIcon: svgIcon != null
                   ? Padding(
-                padding: EdgeInsets.all(12.w),
+                padding: EdgeInsets.all(
+                    MediaQuery.of(context).size.width * 0.03),
                 child: SvgPicture.asset(
-                  widget.svgIcon!,
-                  width: 24.w,
-                  height: 24.h,
+                  svgIcon!,
+                  width: MediaQuery.of(context).size.width * 0.06,
+                  height: MediaQuery.of(context).size.width * 0.06,
                 ),
               )
                   : null,
-              suffixIcon: widget.isPassword
+              suffixIcon: isPassword
                   ? GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isPasswordHidden = !_isPasswordHidden;
-                  });
-                },
+                onTap: onSuffixTap,
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w),
+                  padding: EdgeInsets.symmetric(
+                      horizontal:
+                      MediaQuery.of(context).size.width * 0.03),
                   child: SvgPicture.asset(
-                    _isPasswordHidden
+                    (isPasswordHidden ?? true)
                         ? 'assets/icons/eye_closed.svg'
                         : 'assets/icons/eye_open.svg',
-                    width: 20.w,
-                    height: 20.h,
+                    width: MediaQuery.of(context).size.width * 0.05,
+                    height: MediaQuery.of(context).size.width * 0.05,
                   ),
                 ),
               )
                   : null,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-                borderSide: BorderSide(color: borderColor, width: 1.w),
+                borderRadius: BorderRadius.circular(
+                    MediaQuery.of(context).size.width * 0.02),
+                borderSide: BorderSide(color: borderColor, width: 1),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-                borderSide: BorderSide(color: borderColor, width: 1.w),
+                borderRadius: BorderRadius.circular(
+                    MediaQuery.of(context).size.width * 0.02),
+                borderSide: BorderSide(color: borderColor, width: 1),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-                borderSide: BorderSide(color: borderColor, width: 1.w),
+                borderRadius: BorderRadius.circular(
+                    MediaQuery.of(context).size.width * 0.02),
+                borderSide: BorderSide(color: borderColor, width: 1),
               ),
             ),
           ),
         ),
-        if (widget.errorMessage != null)
+        if (errorMessage != null)
           Padding(
-            padding: EdgeInsets.only(top: 4.h, left: 4.w),
+            padding: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height * 0.005,
+                left: MediaQuery.of(context).size.width * 0.01),
             child: Text(
-              widget.errorMessage!,
-              style: TextStyle(color: Colors.red, fontSize: 12.sp),
+              errorMessage!,
+              style: TextStyle(
+                  color: Colors.red,
+                  fontSize: MediaQuery.of(context).size.width * 0.03),
             ),
           ),
       ],
