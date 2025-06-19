@@ -1,4 +1,4 @@
-import 'user_model.dart';
+import 'login_model.dart';
 
 class LoginResponseModel {
   final bool success;

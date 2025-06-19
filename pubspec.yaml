@@ -21,7 +21,7 @@ dependencies:
   flutter_screenutil: ^5.9.0
   shared_preferences: ^2.2.2
   fl_chart: ^0.70.2
-
+  intl: ^0.18.1
 
 
 dev_dependencies:
@@ -29,6 +29,10 @@ dev_dependencies:
     sdk: flutter
 
 
+flutter_icons:
+  android: true
+  ios: false
+  image_path: "assets/images/logo.svg"
   flutter_lints: ^5.0.0
 
 flutter:

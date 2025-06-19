@@ -1,83 +1,87 @@
 import 'package:get/get.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+import '../../../data/models/alat_model.dart';
+import '../../../data/models/company_model.dart';
+import '../../../data/services/alat_service.dart';
+import '../../../data/services/company_service.dart';
+
 class DetailDataController extends GetxController {
-  var traps = <Map<String, dynamic>>[
-    {
-      "image": "assets/images/example.png",
-      "location": "Tenggara",
-      "history": [
-        {"date": "2024-03-10", "count": 5},
-        {"date": "2024-03-17", "count": 3},
-      ],
-      "isExpanded": false,
-      "note": "".obs,
-    },
-    {
-      "image": "assets/images/example.png",
-      "location": "Barat",
-      "history": [
-        {"date": "2024-03-10", "count": 5},
-        {"date": "2024-03-17", "count": 3},
-      ],
-      "isExpanded": false,
-      "note": "".obs,
-    },
-    {
-      "image": "assets/images/example.png",
-      "location": "Selatan",
-      "history": [
-        {"date": "2024-03-10", "count": 5},
-        {"date": "2024-03-17", "count": 3},
-      ],
-      "isExpanded": false,
-      "note": "".obs,
-    },
-    {
-      "image": "assets/images/example.png",
-      "location": "Timur",
-      "history": [
-        {"date": "2024-03-12", "count": 2},
-        {"date": "2024-03-18", "count": 7},
-      ],
-      "isExpanded": false,
-      "note": "".obs,
-    },
-  ].obs;
-
+  var traps = <AlatModel>[].obs;
   var selectedMonth = 0.obs;
+  var currentCompany = Rxn<CompanyModel>();
+  var companyName = 'Loading...'.obs;
+  var isLoading = false.obs;
 
-  void changeMonth(int index) {
-    selectedMonth.value = index;
+  final CompanyService _companyService = CompanyService();
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadCompanyData();
+    fetchData();
   }
 
-  void toggleExpand(int index) {
-    for (int i = 0; i < traps.length; i++) {
-      traps[i]["isExpanded"] = (i == index) ? !(traps[i]["isExpanded"] ?? false) : false;
+  // Load company data berdasarkan client_id
+  Future<void> loadCompanyData() async {
+    try {
+      isLoading.value = true;
+
+      final company = await _companyService.getCompanyByClientId();
+
+      if (company != null) {
+        currentCompany.value = company;
+        companyName.value = company.name;
+      } else {
+        companyName.value = 'No Company Found';
+        Get.snackbar(
+            "Error",
+            "No company data found for this user",
+            snackPosition: SnackPosition.TOP
+        );
+      }
+    } catch (e) {
+      companyName.value = 'Error Loading';
+      Get.snackbar(
+          "Error",
+          "Failed to load company data: ${e.toString()}",
+          snackPosition: SnackPosition.TOP
+      );
+    } finally {
+      isLoading.value = false;
     }
-    traps.refresh();
   }
 
-  void updateNote(int index, String value) {
-    traps[index]["note"].value = value;
+  Future<void> fetchData() async {
+    try {
+      traps.value = await AlatService.fetchAlat();
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
+    }
   }
+
+  // Refresh semua data
+  Future<void> refreshData() async {
+    await Future.wait([
+      loadCompanyData(),
+      fetchData(),
+    ]);
+  }
+
+  void changeDate(DateTime date) {
+    // Implementasi perubahan tanggal
+    print("Tanggal berubah ke: ${date.toString()}");
+  }
+
+  void updateNote(int index, String value) {}
 
   List<FlSpot> getChartData(String title) {
-    if (title == "Land") {
-      return [
-        FlSpot(1, 10),
-        FlSpot(2, 15),
-        FlSpot(3, 7),
-        FlSpot(4, 12),
-      ];
-    } else if (title == "Fly") {
-      return [
-        FlSpot(1, 10),
-        FlSpot(2, 15),
-        FlSpot(3, 7),
-        FlSpot(4, 12),
-      ];
-    }
-    return [];
+    // Dummy chart data
+    return [
+      FlSpot(1, 10),
+      FlSpot(2, 15),
+      FlSpot(3, 7),
+      FlSpot(4, 12),
+    ];
   }
 }
