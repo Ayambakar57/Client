@@ -36,43 +36,6 @@ class DetailDataView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Display company information if available
-                      Obx(() {
-                        if (controller.currentCompany.value != null) {
-                          final company = controller.currentCompany.value!;
-                          return Container(
-                            margin: EdgeInsets.only(bottom: 16.h),
-                            padding: EdgeInsets.all(16.w),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12.r),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 8,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                          );
-                        } else if (controller.isLoading.value) {
-                          return Container(
-                            margin: EdgeInsets.only(bottom: 16.h),
-                            padding: EdgeInsets.all(16.w),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                color: AppColor.ijomuda,
-                              ),
-                            ),
-                          );
-                        }
-                        return SizedBox.shrink();
-                      }),
-
                       MonthSelection(
                         onMonthRangeChanged: (startDate, endDate) {},
                       ),
