@@ -1,132 +1,146 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class CustomTextField extends StatelessWidget {
+class CustomTextField extends StatefulWidget {
   final String? label;
   final String? hintText;
   final TextEditingController? controller;
+  final String? initialValue;
   final bool isPassword;
   final bool isNumber;
   final TextInputType? keyboardType;
   final String? errorMessage;
   final String? svgIcon;
-  final bool? isPasswordHidden;
-  final VoidCallback? onSuffixTap;
   final Function(String)? onChanged;
+  final bool showErrorBorder;
 
   const CustomTextField({
     super.key,
     this.label,
     this.hintText,
     this.controller,
+    this.initialValue,
     this.isPassword = false,
     this.isNumber = false,
     this.keyboardType,
     this.errorMessage,
     this.svgIcon,
-    this.isPasswordHidden,
-    this.onSuffixTap,
     this.onChanged,
-  });
+    this.showErrorBorder = true,
+  }) : assert(
+  controller == null || initialValue == null,
+  'Gunakan salah satu: controller atau initialValue, bukan keduanya.',
+  );
+
+  @override
+  State<CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  bool _isPasswordHidden = true;
+  late final TextEditingController _internalController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.controller == null) {
+      _internalController = TextEditingController(text: widget.initialValue ?? '');
+
+      // Jika ada onChanged callback, panggil dengan nilai awal
+      if (widget.onChanged != null && widget.initialValue != null) {
+        widget.onChanged!(widget.initialValue!);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final borderColor =
-    errorMessage == null ? const Color(0xFF275637) : Colors.red;
+    final showError = widget.showErrorBorder && widget.errorMessage != null;
+    final borderColor = showError ? Colors.red : const Color(0xFF275637);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (label != null)
+        if (widget.label != null)
           Padding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).size.height * 0.008),
+            padding: EdgeInsets.only(bottom: 6.h),
             child: Text(
-              label!,
+              widget.label!,
               style: TextStyle(
-                fontSize: MediaQuery.of(context).size.width * 0.035,
+                fontSize: 14.sp,
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
         SizedBox(
-          height: MediaQuery.of(context).size.height * 0.06,
+          height: 48.h,
           child: TextField(
-            controller: controller,
-            obscureText: isPassword ? (isPasswordHidden ?? true) : false,
-            keyboardType: keyboardType ??
-                (isNumber ? TextInputType.number : TextInputType.text),
-            style: TextStyle(
-                fontSize: MediaQuery.of(context).size.width * 0.037,
-                color: Colors.black),
-            onChanged: onChanged,
+            controller: widget.controller ?? _internalController,
+            obscureText: widget.isPassword ? _isPasswordHidden : false,
+            keyboardType: widget.keyboardType ??
+                (widget.isNumber ? TextInputType.number : TextInputType.text),
+            style: TextStyle(fontSize: 15.sp, color: Colors.black),
+            onChanged: widget.onChanged,
             decoration: InputDecoration(
-              hintText: hintText ?? '',
-              hintStyle: TextStyle(
-                  fontSize: MediaQuery.of(context).size.width * 0.037,
-                  color: Colors.grey),
+              hintText: widget.hintText ?? '',
+              hintStyle: TextStyle(fontSize: 15.sp, color: Colors.grey),
               filled: true,
               fillColor: Colors.white,
-              contentPadding: EdgeInsets.symmetric(
-                  vertical: MediaQuery.of(context).size.height * 0.02,
-                  horizontal: MediaQuery.of(context).size.width * 0.03),
-              prefixIcon: svgIcon != null
+              contentPadding:
+              EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
+              prefixIcon: widget.svgIcon != null
                   ? Padding(
-                padding: EdgeInsets.all(
-                    MediaQuery.of(context).size.width * 0.03),
+                padding: EdgeInsets.all(12.w),
                 child: SvgPicture.asset(
-                  svgIcon!,
-                  width: MediaQuery.of(context).size.width * 0.06,
-                  height: MediaQuery.of(context).size.width * 0.06,
+                  widget.svgIcon!,
+                  width: 24.w,
+                  height: 24.h,
                 ),
               )
                   : null,
-              suffixIcon: isPassword
+              suffixIcon: widget.isPassword
                   ? GestureDetector(
-                onTap: onSuffixTap,
+                onTap: () {
+                  setState(() {
+                    _isPasswordHidden = !_isPasswordHidden;
+                  });
+                },
                 child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal:
-                      MediaQuery.of(context).size.width * 0.03),
+                  padding: EdgeInsets.symmetric(horizontal: 12.w),
                   child: SvgPicture.asset(
-                    (isPasswordHidden ?? true)
+                    _isPasswordHidden
                         ? 'assets/icons/eye_closed.svg'
                         : 'assets/icons/eye_open.svg',
-                    width: MediaQuery.of(context).size.width * 0.05,
-                    height: MediaQuery.of(context).size.width * 0.05,
+                    width: 20.w,
+                    height: 20.h,
                   ),
                 ),
               )
                   : null,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(
-                    MediaQuery.of(context).size.width * 0.02),
-                borderSide: BorderSide(color: borderColor, width: 1),
+                borderRadius: BorderRadius.circular(8.r),
+                borderSide: BorderSide(color: borderColor, width: 1.w),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(
-                    MediaQuery.of(context).size.width * 0.02),
-                borderSide: BorderSide(color: borderColor, width: 1),
+                borderRadius: BorderRadius.circular(8.r),
+                borderSide: BorderSide(color: borderColor, width: 1.w),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(
-                    MediaQuery.of(context).size.width * 0.02),
-                borderSide: BorderSide(color: borderColor, width: 1),
+                borderRadius: BorderRadius.circular(8.r),
+                borderSide: BorderSide(color: borderColor, width: 1.w),
               ),
             ),
           ),
         ),
-        if (errorMessage != null)
+        if (widget.errorMessage != null)
           Padding(
-            padding: EdgeInsets.only(
-                top: MediaQuery.of(context).size.height * 0.005,
-                left: MediaQuery.of(context).size.width * 0.01),
+            padding: EdgeInsets.only(top: 4.h, left: 4.w),
             child: Text(
-              errorMessage!,
-              style: TextStyle(
-                  color: Colors.red,
-                  fontSize: MediaQuery.of(context).size.width * 0.03),
+              widget.errorMessage!,
+              style: TextStyle(color: Colors.red, fontSize: 12.sp),
             ),
           ),
       ],

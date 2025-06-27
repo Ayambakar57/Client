@@ -21,7 +21,7 @@ class ReportDetailView extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomAppBar(title: "Report Detail"),
+                CustomAppBar(title: "Report Detail", onBackTap:Get.back),
                 SizedBox(height: 22.h),
 
                 Center(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+
+import '../../../../../data/models/alat_model.dart';
 import '../../../../values/app_color.dart';
 import '../detail_data_controller.dart';
 
@@ -12,6 +14,7 @@ class ToolCard extends StatelessWidget {
   final String kondisi;
   final String kode_qr;
   final String pest_type;
+  final String alatId; // Added from second version
   final List<Map<String, dynamic>> historyItems;
 
   const ToolCard({
@@ -24,6 +27,7 @@ class ToolCard extends StatelessWidget {
     required this.kondisi,
     required this.kode_qr,
     required this.pest_type,
+    required this.alatId, // Added parameter
   });
 
   @override
@@ -48,8 +52,11 @@ class ToolCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16.r),
-          onTap: () => Get.offNamed('/historytool', arguments: {
+          onTap: () => Get.toNamed('/historytool', arguments: {
+            'alatId': alatId, // Using alatId from second version
             'toolName': toolName,
+            'location': location,
+            'locationDetail': locationDetail,
           }),
           child: Padding(
             padding: EdgeInsets.all(12.w),
