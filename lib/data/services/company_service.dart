@@ -26,6 +26,17 @@ class CompanyService {
     }
   }
 
+  // Function to get company ID from SharedPreferences
+  Future<int?> getCompanyId() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getInt('company_id');
+    } catch (e) {
+      print('Error getting company ID: $e');
+      return null;
+    }
+  }
+
   // Function to get username from SharedPreferences
   Future<String?> getUsername() async {
     try {
@@ -87,6 +98,30 @@ class CompanyService {
       return null;
     } catch (e) {
       print('Error getting company by client ID: $e');
+      return null;
+    }
+  }
+
+  // Get company by ID
+  Future<CompanyModel?> getCompanyById(int companyId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/companies/$companyId'),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': '1',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        return CompanyModel.fromJson(responseData['data']);
+      } else {
+        throw Exception('Failed to load company: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error getting company by ID: $e');
       return null;
     }
   }

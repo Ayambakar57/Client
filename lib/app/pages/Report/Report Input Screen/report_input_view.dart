@@ -24,7 +24,7 @@ class ReportInputView extends StatelessWidget {
           children: [
             Column(
               children: [
-                CustomAppBar(title: "Report"),
+                CustomAppBar(title: "Report", onBackTap:Get.back),
                 SizedBox(height: 22.h),
                 Center(
                   child: SvgPicture.asset(

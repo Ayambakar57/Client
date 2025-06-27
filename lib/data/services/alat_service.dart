@@ -10,46 +10,26 @@ import '../models/alat_model.dart';
 class AlatService {
   static const String baseUrl = 'https://hamatech.rplrus.com/api';
 
-  static Future<http.Response?> createAlat(AlatModel alat, File imageFile) async {
-    try {
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.parse('$baseUrl/alat'),
-      );
+  // Modified fetchAlat to accept optional companyId parameter
+  static Future<List<AlatModel>> fetchAlat({int? companyId}) async {
+    String url = '$baseUrl/alat';
 
-      request.fields['nama_alat'] = alat.namaAlat;
-      request.fields['lokasi'] = alat.lokasi;
-      request.fields['detail_lokasi'] = alat.detailLokasi;
-      request.fields['pest_type'] = alat.pestType;
-      request.fields['kondisi'] = alat.kondisi;
-      request.fields['kode_qr'] = alat.kodeQr;
-
-      if (imageFile != null) {
-        request.files.add(
-          await http.MultipartFile.fromPath('alat_image', imageFile.path),
-        );
-      }
-
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      print('Status: ${response.statusCode}');
-      print('Body: ${response.body}');
-
-      return response;
-    } catch (e) {
-      print('Error kirim ke API: $e');
-      return null;
+    // Add company_id parameter if provided
+    if (companyId != null) {
+      url += '?company_id=$companyId';
     }
-  }
 
-  static Future<List<AlatModel>> fetchAlat() async {
+    print('Fetching tools from URL: $url'); // Debug log
+
     final response = await http.get(
-      Uri.parse('$baseUrl/alat'),
+      Uri.parse(url),
       headers: {
         'ngrok-skip-browser-warning': '1',
       },
     );
+
+    print('Response status: ${response.statusCode}'); // Debug log
+    print('Response body: ${response.body}'); // Debug log
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
@@ -57,8 +37,16 @@ class AlatService {
 
       return dataList.map((json) => AlatModel.fromJson(json)).toList();
     } else {
-      throw Exception('Gagal mengambil data alat (${response.statusCode})');
+      throw Exception('Failed to fetch tools (${response.statusCode}): ${response.body}');
     }
+  }
+
+  // Fetch alat by company
+  static Future<List<AlatModel>> fetchAlatByCompany(int companyId) async {
+    if (companyId <= 0) {
+      throw Exception('Invalid company ID: $companyId');
+    }
+    return await fetchAlat(companyId: companyId);
   }
 
   static Future<http.Response?> deleteAlat(int id) async {
@@ -70,46 +58,12 @@ class AlatService {
         },
       );
 
-      print('Status: ${response.statusCode}');
-      print('Body: ${response.body}');
+      print('Delete Status: ${response.statusCode}'); // Debug log
+      print('Delete Body: ${response.body}'); // Debug log
 
       return response;
     } catch (e) {
       print('Error saat menghapus alat: $e');
-      return null;
-    }
-  }
-
-  static Future<http.Response?> updateAlat(int id, AlatModel alat, {File? imageFile}) async {
-    try {
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.parse('$baseUrl/alat/$id'),
-      );
-
-      request.fields['nama_alat'] = alat.namaAlat;
-      request.fields['lokasi'] = alat.lokasi;
-      request.fields['detail_lokasi'] = alat.detailLokasi;
-      request.fields['pest_type'] = alat.pestType;
-      request.fields['kondisi'] = alat.kondisi;
-      request.fields['kode_qr'] = alat.kodeQr;
-      request.fields['_method'] = 'PUT';
-
-      if (imageFile != null) {
-        request.files.add(
-          await http.MultipartFile.fromPath('alat_image', imageFile.path),
-        );
-      }
-
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      print('Status: ${response.statusCode}');
-      print('Body: ${response.body}');
-
-      return response;
-    } catch (e) {
-      print('Error update ke API: $e');
       return null;
     }
   }
@@ -123,8 +77,8 @@ class AlatService {
         },
       );
 
-      print('Status getAlatById: ${response.statusCode}');
-      print('Body: ${response.body}');
+      print('Status getAlatById: ${response.statusCode}'); // Debug log
+      print('Body: ${response.body}'); // Debug log
 
       return response;
     } catch (e) {

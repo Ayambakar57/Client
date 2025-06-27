@@ -21,7 +21,7 @@ class HistoryReportView extends StatelessWidget {
             CustomAppBar(
               title: "Report",
               rightIcon: "assets/icons/add_btn.svg",
-              rightOnTap: () => Get.toNamed('ReportInput'),
+              rightOnTap: () => Get.toNamed('ReportInput'), onBackTap: Get.back,
             ),
             SizedBox(height: 10.h), // Jarak setelah AppBar
             Expanded( // Tambahin Expanded biar ListView bisa scroll

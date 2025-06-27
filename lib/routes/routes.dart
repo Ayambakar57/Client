@@ -3,6 +3,8 @@ import 'package:client_page/app/pages/Detail%20Data%20Screen/detail_data_view.da
 import 'package:get/get.dart';
 import '../app/pages/Detail History Screen/detail_binding.dart';
 import '../app/pages/Detail History Screen/detail_view.dart';
+import '../app/pages/History/history_tools_binding.dart';
+import '../app/pages/History/history_tools_view.dart';
 import '../app/pages/Login screen/login_view.dart';
 import '../app/pages/Report/History Report Screen/history_report_binding.dart';
 import '../app/pages/Report/History Report Screen/history_report_view.dart';
@@ -21,6 +23,7 @@ class Routes {
   static const reportDetail = '/ReportDetail';
   static const reportInput = '/ReportInput';
   static const String detailHistory = '/detailhistory';
+  static const String historytool = '/historytool';
 
 
 
@@ -57,8 +60,13 @@ class Routes {
     ),
     GetPage(
       name: Routes.detailHistory,
-      page: () => DetailHistoryView(),
+      page: () => DetailView(),
       binding: DetailHistoryBinding(),
+    ),
+    GetPage(
+      name: Routes.historytool,
+      page: () => HistoryToolView(),
+      binding: HistoryBinding(),
     ),
 
   ];
