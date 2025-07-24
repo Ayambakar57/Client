@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../data/services/login_service.dart';
 import '../../../routes/routes.dart';
 
+final isLoading = false.obs;
+
 class LoginController extends GetxController {
   var isPasswordHidden = true.obs;
   var nameController = TextEditingController();
@@ -17,6 +19,7 @@ class LoginController extends GetxController {
   }
 
   void login() async {
+    isLoading.value = true;
     String name = nameController.text.trim();
     String password = passwordController.text.trim();
 
@@ -24,6 +27,7 @@ class LoginController extends GetxController {
 
     if (name.isEmpty || password.isEmpty) {
       loginError.value = "Username atau password tidak boleh kosong";
+      isLoading.value = false;
       return;
     }
 
@@ -42,19 +46,25 @@ class LoginController extends GetxController {
         return;
       }
 
-      if (result.user!.role.toLowerCase() != 'client') {
+      if (result.user!.role.toLowerCase() != 'worker') {
         loginError.value = "Username atau password salah";
         return;
       }
 
-      // Simpan data login ke SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
       await prefs.setString('userData', jsonEncode(result.user!.toJson()));
 
-      // Simpan client_id untuk filtering company data
-      await prefs.setInt('client_id', result.user!.id);
-      await prefs.setString('username', result.user!.name);
+      // Simpan token ke SharedPreferences
+      if (result.token != null && result.token!.isNotEmpty) {
+        await prefs.setString('token', result.token!);
+        print('✅ Login berhasil!');
+        print('📱 Token berhasil disimpan: ${result.token!}');
+        print('👤 User: ${result.user!.name}');
+        print('🔑 Role: ${result.user!.role}');
+      } else {
+        print('⚠️ Login berhasil tapi token tidak ditemukan atau kosong');
+      }
 
       Get.snackbar("Login Berhasil", result.message,
           snackPosition: SnackPosition.TOP);
@@ -62,5 +72,24 @@ class LoginController extends GetxController {
     } else {
       loginError.value = result.message;
     }
+  }
+
+  // Method untuk mengambil token dari SharedPreferences
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  // Method untuk menghapus token saat logout
+  static Future<void> removeToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+  }
+
+  // Method untuk mengecek apakah token masih ada
+  static Future<bool> hasToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    return token != null && token.isNotEmpty;
   }
 }

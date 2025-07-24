@@ -48,7 +48,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
     if (widget.controller == null) {
       _internalController = TextEditingController(text: widget.initialValue ?? '');
 
-      // Jika ada onChanged callback, panggil dengan nilai awal
       if (widget.onChanged != null && widget.initialValue != null) {
         widget.onChanged!(widget.initialValue!);
       }
@@ -89,8 +88,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               hintStyle: TextStyle(fontSize: 15.sp, color: Colors.grey),
               filled: true,
               fillColor: Colors.white,
-              contentPadding:
-              EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
+              contentPadding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
               prefixIcon: widget.svgIcon != null
                   ? Padding(
                 padding: EdgeInsets.all(12.w),
@@ -102,22 +100,25 @@ class _CustomTextFieldState extends State<CustomTextField> {
               )
                   : null,
               suffixIcon: widget.isPassword
-                  ? GestureDetector(
-                onTap: () {
+                  ? IconButton(
+                onPressed: () {
                   setState(() {
                     _isPasswordHidden = !_isPasswordHidden;
                   });
                 },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w),
-                  child: SvgPicture.asset(
-                    _isPasswordHidden
-                        ? 'assets/icons/eye_closed.svg'
-                        : 'assets/icons/eye_open.svg',
-                    width: 20.w,
-                    height: 20.h,
+                icon: SvgPicture.asset(
+                  _isPasswordHidden
+                      ? 'assets/icons/eye_closed.svg'
+                      : 'assets/icons/eye_open.svg',
+                  width: 20.w,
+                  height: 20.h,
+                  colorFilter: ColorFilter.mode(
+                    Colors.grey.shade600,
+                    BlendMode.srcIn,
                   ),
                 ),
+                splashRadius: 20.r,
+                padding: EdgeInsets.all(8.w),
               )
                   : null,
               border: OutlineInputBorder(
