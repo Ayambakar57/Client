@@ -9,6 +9,7 @@ import '../../../data/models/chart_model.dart';
 import '../../../data/services/alat_service.dart';
 import '../../../data/services/company_service.dart';
 import '../../../data/services/chart_service.dart';
+import '../Login screen/login_controller.dart';
 
 class DetailDataController extends GetxController {
   var traps = <AlatModel>[].obs;
@@ -62,8 +63,8 @@ class DetailDataController extends GetxController {
     try {
       isLoading.value = true;
 
-      // Validate client_id
-      final clientId = await _companyService.getClientId();
+      // PERBAIKAN: Gunakan LoginController.getClientId() langsung
+      final clientId = await LoginController.getClientId();
       if (clientId == null) {
         throw Exception('Client ID not found in SharedPreferences. Please login again.');
       }
@@ -170,8 +171,6 @@ class DetailDataController extends GetxController {
       landChartData.value = _convertToFlSpots(landData);
       flyChartData.value = _convertToFlSpots(flyData);
     } catch (e) {
-      Get.snackbar("Error", "Failed to load chart data",
-          snackPosition: SnackPosition.TOP);
       landChartData.value = [FlSpot(0, 0)];
       flyChartData.value = [FlSpot(0, 0)];
     } finally {
@@ -298,7 +297,7 @@ class DetailDataController extends GetxController {
 
   int get totalLandCatches {
     if (landChartData.isEmpty) return 0;
-    if (landChartData.length == 3 && landChartData[0].y == 0 && landChartData[1].y == landChartData[2].y) {
+    if (landChartData.length == 3 && landChartData[0].y == 0 && landChartData[1].y == flyChartData[2].y) {
       return landChartData[1].y.toInt();
     }
     return landChartData.map((e) => e.y.toInt()).reduce((a, b) => a + b);
