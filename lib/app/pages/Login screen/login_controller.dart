@@ -46,7 +46,7 @@ class LoginController extends GetxController {
         return;
       }
 
-      if (result.user!.role.toLowerCase() != 'worker') {
+      if (result.user!.role.toLowerCase() != 'client') {
         loginError.value = "Username atau password salah";
         return;
       }
@@ -66,6 +66,15 @@ class LoginController extends GetxController {
         print('⚠️ Login berhasil tapi token tidak ditemukan atau kosong');
       }
 
+      // PERBAIKAN: Simpan client_id ke SharedPreferences
+      // Asumsikan user model memiliki property id yang merupakan client_id
+      if (result.user!.id != null) {
+        await prefs.setInt('client_id', result.user!.id);
+        print('🆔 Client ID berhasil disimpan: ${result.user!.id}');
+      } else {
+        print('⚠️ Client ID tidak ditemukan dalam user data');
+      }
+
       Get.snackbar("Login Berhasil", result.message,
           snackPosition: SnackPosition.TOP);
       Get.offNamed(Routes.home);
@@ -80,10 +89,22 @@ class LoginController extends GetxController {
     return prefs.getString('token');
   }
 
+  // PERBAIKAN: Method untuk mengambil client_id dari SharedPreferences
+  static Future<int?> getClientId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('client_id');
+  }
+
   // Method untuk menghapus token saat logout
   static Future<void> removeToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
+  }
+
+  // PERBAIKAN: Method untuk menghapus client_id saat logout
+  static Future<void> removeClientId() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('client_id');
   }
 
   // Method untuk mengecek apakah token masih ada
@@ -91,5 +112,23 @@ class LoginController extends GetxController {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     return token != null && token.isNotEmpty;
+  }
+
+  // PERBAIKAN: Method untuk mengecek apakah client_id masih ada
+  static Future<bool> hasClientId() async {
+    final prefs = await SharedPreferences.getInstance();
+    int? clientId = prefs.getInt('client_id');
+    return clientId != null && clientId > 0;
+  }
+
+  // PERBAIKAN: Method untuk logout yang membersihkan semua data
+  static Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('isLoggedIn');
+    await prefs.remove('userData');
+    await prefs.remove('token');
+    await prefs.remove('client_id');
+    await prefs.remove('company_id'); // Juga hapus company_id jika ada
+    print('🚪 Logout berhasil, semua data dihapus');
   }
 }

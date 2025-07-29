@@ -15,6 +15,17 @@ class CompanyService {
     return '$imageBaseUrl$imagePath';
   }
 
+  // Function to get token from SharedPreferences
+  Future<String?> getToken() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString('token');
+    } catch (e) {
+      print('Error getting token: $e');
+      return null;
+    }
+  }
+
   // Function to get client ID from SharedPreferences
   Future<int?> getClientId() async {
     try {
@@ -48,17 +59,37 @@ class CompanyService {
     }
   }
 
+  // Function to create headers with Bearer token
+  Future<Map<String, String>> _getHeaders() async {
+    final token = await getToken();
+
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': '1',
+    };
+
+    if (token != null && token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+      print('🔑 Using Bearer token: ${token.substring(0, 20)}...');
+    } else {
+      print('⚠️ No token found for authorization');
+    }
+
+    return headers;
+  }
+
   // Get all companies and filter by client_id
   Future<List<CompanyModel>> getCompanies() async {
     try {
+      final headers = await _getHeaders();
+
       final response = await http.get(
         Uri.parse('$baseUrl/companies'),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': '1',
-        },
+        headers: headers,
       );
+
+      print('📡 GET /companies - Status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
@@ -71,17 +102,23 @@ class CompanyService {
           throw Exception('Client ID not found. Please login again.');
         }
 
+        print('🔍 Filtering companies for client_id: $clientId');
+
         // Filter companies berdasarkan client_id
         final filteredCompanies = companiesData
             .where((company) => company['client_id'] == clientId)
             .map((json) => CompanyModel.fromJson(json))
             .toList();
 
+        print('✅ Found ${filteredCompanies.length} companies for client');
         return filteredCompanies;
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized: Token may be invalid or expired');
       } else {
         throw Exception('Failed to load companies: ${response.statusCode}');
       }
     } catch (e) {
+      print('❌ Error in getCompanies: $e');
       throw Exception('Failed to load companies: $e');
     }
   }
@@ -92,12 +129,14 @@ class CompanyService {
       final companies = await getCompanies();
 
       if (companies.isNotEmpty) {
+        print('🏢 Found company: ${companies.first.name}');
         return companies.first; // Return the first company for this client
       }
 
+      print('⚠️ No company found for this client');
       return null;
     } catch (e) {
-      print('Error getting company by client ID: $e');
+      print('❌ Error getting company by client ID: $e');
       return null;
     }
   }
@@ -105,24 +144,54 @@ class CompanyService {
   // Get company by ID
   Future<CompanyModel?> getCompanyById(int companyId) async {
     try {
+      final headers = await _getHeaders();
+
       final response = await http.get(
         Uri.parse('$baseUrl/companies/$companyId'),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': '1',
-        },
+        headers: headers,
       );
+
+      print('📡 GET /companies/$companyId - Status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        return CompanyModel.fromJson(responseData['data']);
+        final company = CompanyModel.fromJson(responseData['data']);
+        print('✅ Company loaded: ${company.name}');
+        return company;
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized: Token may be invalid or expired');
+      } else if (response.statusCode == 404) {
+        print('⚠️ Company not found with ID: $companyId');
+        return null;
       } else {
         throw Exception('Failed to load company: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error getting company by ID: $e');
+      print('❌ Error getting company by ID: $e');
       return null;
+    }
+  }
+
+  // Method untuk validasi token
+  Future<bool> validateToken() async {
+    try {
+      final token = await getToken();
+      if (token == null || token.isEmpty) {
+        return false;
+      }
+
+      final headers = await _getHeaders();
+
+      // Test endpoint untuk validasi token (bisa diganti sesuai API)
+      final response = await http.get(
+        Uri.parse('$baseUrl/companies'),
+        headers: headers,
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print('❌ Token validation failed: $e');
+      return false;
     }
   }
 }
