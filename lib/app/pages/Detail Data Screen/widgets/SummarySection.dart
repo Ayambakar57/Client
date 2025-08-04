@@ -40,25 +40,7 @@ class SummarySection extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           SummaryCard(title: "Total alat", value: totalAlat.toString()),
-          SummaryCard(title: "Pengecekan", value: totalPengecekan.toString()),
-          GestureDetector(
-            onTap: onQrTap,
-            child: Container(
-              width: size,
-              height: size,
-              decoration: BoxDecoration(
-                color: AppColor.btnoren,
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Center(
-                child: SvgPicture.asset(
-                  "assets/icons/qr_icont.svg",
-                  width: 50.w,
-                  height: 50.h,
-                ),
-              ),
-            ),
-          ),
+          SummaryCard(title: "Pengecekan", value: totalPengecekan.toString())
         ],
       ),
     );

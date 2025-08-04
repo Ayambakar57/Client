@@ -1,7 +1,9 @@
+import 'package:client_page/app/pages/Detail%20Data%20Screen/widgets/ChartTool.dart';
 import 'package:client_page/app/pages/Detail%20Data%20Screen/widgets/DataCard.dart';
 import 'package:client_page/app/pages/Detail%20Data%20Screen/widgets/DateSelection.dart';
 import 'package:client_page/app/pages/Detail%20Data%20Screen/widgets/SummarySection.dart';
 import 'package:client_page/app/pages/Detail%20Data%20Screen/widgets/ToolCard.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -25,7 +27,8 @@ class DetailDataView extends StatelessWidget {
           children: [
             Obx(() => CustomAppBar(
               title: controller.companyName.value,
-              showBackButton: false, onBackTap: () {  },
+              showBackButton: false, rightIcon: "assets/icons/report.svg",
+              rightOnTap: () => Get.toNamed('/HistoryReport'), onBackTap: () {  },
             )),
             Expanded(
               child: RefreshIndicator(
@@ -52,36 +55,116 @@ class DetailDataView extends StatelessWidget {
                       ),
                       SizedBox(height: 20.h),
 
-                      // Loading indicator for charts
                       Obx(() {
                         if (controller.isLoadingChart.value) {
                           return Container(
-                            height: 100.h,
+                            height: 300.h,
+                            margin: EdgeInsets.symmetric(vertical: 8.h),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16.r),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
                             child: Center(
-                              child: CircularProgressIndicator(
-                                color: AppColor.ijomuda,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(AppColor.btnoren),
+                                  ),
+                                  SizedBox(height: 16.h),
+                                  Text(
+                                    'Loading chart data...',
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           );
                         }
-                        return SizedBox.shrink();
+
+                        if (controller.availablePestTypes.isEmpty) {
+                          return Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(32.w),
+                            margin: EdgeInsets.symmetric(vertical: 8.h),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16.r),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.analytics_outlined,
+                                  size: 64.w,
+                                  color: Colors.grey.shade400,
+                                ),
+                                SizedBox(height: 16.h),
+                                Text(
+                                  "No chart data available",
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    color: Colors.grey.shade600,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                SizedBox(height: 8.h),
+                                Text(
+                                  "Data will appear when catches are recorded for tools",
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    color: Colors.grey.shade500,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        // Generate layered charts for each pest type
+                        return Column(
+                          children: controller.availablePestTypes.map((pestType) {
+                            // Get layered data for this pest type
+                            List<List<FlSpot>> layeredChartData = controller.getLayeredChartDataByPestType(pestType);
+                            List<Color> layeredColors = controller.getLayeredColorsByPestType(pestType);
+                            List<String> labels = controller.getLabelsByPestType(pestType);
+
+                            return Column(
+                              children: [
+                                ChartTool(
+                                  title: pestType,
+                                  chartData: layeredChartData,
+                                  colors: layeredColors,
+                                  labels: labels,
+                                  onNoteChanged: (text) => controller.updateNote(
+                                      controller.availablePestTypes.indexOf(pestType),
+                                      text
+                                  ),
+                                  onSave: () => print("Layered data for $pestType saved!"),
+                                ),
+                                SizedBox(height: 25.h),
+                              ],
+                            );
+                          }).toList(),
+                        );
                       }),
-
-                      // Land Chart
-                      Obx(() =>DataCard(
-                        title: "Land",
-                        chartData: controller.getChartData("Land"),
-                        color: AppColor.ijomuda,
-                      ),),
-                      SizedBox(height: 25.h),
-
-                      // Fly Chart
-                      Obx(() =>DataCard(
-                        title: "Fly",
-                        chartData: controller.getChartData("Fly"),
-                        color: AppColor.btnoren,
-                      ),),
-                      SizedBox(height: 35.h),
 
                       // History Section
                       Row(
