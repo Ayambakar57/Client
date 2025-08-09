@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
-class ReportWorker extends StatelessWidget {
+import '../../../../../values/app_color.dart';
+
+class ReportAdmin extends StatelessWidget {
   final String name;
   final String date;
   final String time;
@@ -11,7 +12,7 @@ class ReportWorker extends StatelessWidget {
   final String informasi;
   final int reportId;
 
-  const ReportWorker({
+  const ReportAdmin({
     Key? key,
     required this.name,
     required this.date,
@@ -37,7 +38,7 @@ class ReportWorker extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: AppColor.btomnav,
                 borderRadius: BorderRadius.circular(12.r),
                 boxShadow: [
                   BoxShadow(
@@ -52,10 +53,10 @@ class ReportWorker extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      SvgPicture.asset(
-                        'assets/icons/Client_icont.svg',
-                        height: 14.h,
-                        width: 14.w,
+                      Icon(
+                        Icons.account_circle_outlined,
+                        size: 14.sp,
+                        color: Colors.black,
                       ),
                       SizedBox(width: 8.w),
                       Expanded(
