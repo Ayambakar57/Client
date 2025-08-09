@@ -2,46 +2,106 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import '../../../../../data/models/report_model.dart';
+import '../../../../../data/services/report_service.dart';
 
 class ReportInputController extends GetxController {
-  RxString selectedCondition = "".obs;
   RxString amount = "".obs;
   RxString information = "".obs;
-  RxBool showError = false.obs;
-
+  RxString areaError = "".obs;
+  RxString informationError = "".obs;
   Rx<File?> imageFile = Rx<File?>(null);
   RxBool imageError = false.obs;
+  RxBool isLoading = false.obs;
+
+  final ReportService _reportService = ReportService();
 
   Future<void> takePicture() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
-
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+      maxWidth: 1920,
+      maxHeight: 1920,
+      imageQuality: 80,
+    );
     if (pickedFile != null) {
       imageFile.value = File(pickedFile.path);
-      imageError.value = false; // reset error kalau udah ambil foto
+      imageError.value = false;
+    }
+  }
+
+  Future<void> pickImageFromGallery() async {
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1920,
+      maxHeight: 1920,
+      imageQuality: 80,
+    );
+    if (pickedFile != null) {
+      imageFile.value = File(pickedFile.path);
+      imageError.value = false;
     }
   }
 
   void validateForm() {
-    bool isFormEmpty = selectedCondition.value.isEmpty || amount.value.isEmpty || information.value.isEmpty;
-    bool isImageEmpty = imageFile.value == null;
+    areaError.value = "";
+    informationError.value = "";
+    imageError.value = false;
 
-    if (isFormEmpty || isImageEmpty) {
-      showError.value = isFormEmpty;
-      imageError.value = isImageEmpty;
-    } else {
-      showError.value = false;
-      imageError.value = false;
+    if (amount.value.isEmpty) areaError.value = "Area harus diisi!";
+    if (information.value.isEmpty) informationError.value = "Information harus diisi!";
+    if (imageFile.value == null) imageError.value = true;
 
-      Get.rawSnackbar(
-        message: "Data berhasil disimpan",
-        backgroundColor: Colors.green,
-        snackPosition: SnackPosition.TOP,
-        duration: Duration(seconds: 2),
-      );
+    bool isValid = amount.value.isNotEmpty &&
+        information.value.isNotEmpty &&
+        imageFile.value != null;
 
-      // TODO: Simpan data ke database atau API
+    if (isValid) {
+      submitReport();
     }
   }
 
+  Future<void> submitReport() async {
+    if (isLoading.value) return;
+
+    try {
+      isLoading.value = true;
+
+      await _reportService.createReportWithImage(
+        area: amount.value,
+        informasi: information.value,
+        imageFile: imageFile.value,
+      );
+
+      _showSuccessSnackbar("Report berhasil dibuat");
+      Get.offNamed("/HistoryReport");
+    } catch (e) {
+      _showErrorSnackbar("Gagal mengirim laporan: ${e.toString()}");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void _showSuccessSnackbar(String message) {
+    Get.rawSnackbar(
+      message: message,
+      backgroundColor: Colors.green,
+      snackPosition: SnackPosition.TOP,
+      duration: Duration(seconds: 3),
+      margin: EdgeInsets.all(16),
+      borderRadius: 8,
+      icon: Icon(Icons.check_circle, color: Colors.white),
+    );
+  }
+
+  void _showErrorSnackbar(String message) {
+    Get.rawSnackbar(
+      message: message,
+      backgroundColor: Colors.red,
+      snackPosition: SnackPosition.TOP,
+      duration: Duration(seconds: 4),
+      margin: EdgeInsets.all(16),
+      borderRadius: 8,
+      icon: Icon(Icons.error, color: Colors.white),
+    );
+  }
 }

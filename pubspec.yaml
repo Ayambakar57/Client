@@ -22,7 +22,7 @@ dependencies:
   shared_preferences: ^2.2.2
   fl_chart: ^0.64.0
   intl: ^0.18.1
-
+  cached_network_image: ^3.4.1
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +34,8 @@ flutter_icons:
   ios: false
   image_path: "assets/images/logo.svg"
   flutter_lints: ^5.0.0
+  cached_network_image: ^3.4.1
+
 
 flutter:
 
@@ -42,4 +44,5 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/icons/Client_icont.svg
 
