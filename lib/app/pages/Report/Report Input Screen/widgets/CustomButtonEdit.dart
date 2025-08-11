@@ -1,3 +1,4 @@
+import 'package:client_page/values/app_color.dart';
 import 'package:flutter/material.dart';
 
 class CustomButtonEdit extends StatelessWidget {
@@ -12,7 +13,7 @@ class CustomButtonEdit extends StatelessWidget {
     super.key,
     required this.text,
     required this.onPressed, // Tetap required tapi nullable
-    this.backgroundColor = const Color(0xFF234E35), // default hijau
+    this.backgroundColor =  AppColor.btnoren, // default hijau
     this.textColor = Colors.black, // default putih
     this.fontSize = 30, // default 16sp
     this.height = 48, // default 48.h
@@ -35,7 +36,7 @@ class CustomButtonEdit extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            fontSize: fontSize * MediaQuery.of(context).textScaleFactor,
+            fontSize: fontSize,
             fontWeight: FontWeight.bold,
             color: textColor,
           ),
