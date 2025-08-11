@@ -207,7 +207,6 @@ class ReportDetailView extends StatelessWidget {
               ),
             ),
             SizedBox(height: 12.h),
-            _buildInfoRow("ID", "#${report.id}"),
             _buildInfoRow("Pengirim", report.namaPengirim),
             _buildInfoRow("Perusahaan", report.company.name),
             _buildInfoRow("Role", report.role),
