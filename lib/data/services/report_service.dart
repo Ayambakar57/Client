@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/report_model.dart';
+import '../services/image_service.dart'; // Import ImageService
 
 class ReportService {
   static const String baseUrl = 'https://hamatech.rplrus.com/api';
@@ -28,7 +29,7 @@ class ReportService {
     final prefs = await SharedPreferences.getInstance();
     return {
       'company_id': prefs.getInt('companyid'),
-      'role': 'client', // ⛔ Hardcoded role
+      'role': 'client', // Hardcoded role
       'nama_pengirim': prefs.getString('nama') ?? prefs.getString('username') ?? 'User',
     };
   }
@@ -47,18 +48,18 @@ class ReportService {
       // Selalu sertakan company_id dalam query parameter
       String endpoint = '$baseUrl/reports?page=$page&company_id=$companyId';
 
-      print('🌐 Making request to: $endpoint');
+      print('Making request to: $endpoint');
 
       final url = Uri.parse(endpoint);
       final requestHeaders = await headers;
 
-      print('📋 Headers: $requestHeaders');
-      print('🏢 Filtering by Company ID: $companyId');
+      print('Headers: $requestHeaders');
+      print('Filtering by Company ID: $companyId');
 
       final response = await http.get(url, headers: requestHeaders);
 
-      print('📡 Response status: ${response.statusCode}');
-      print('📄 Response body: ${response.body}');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         if (response.body.isEmpty) throw Exception('Empty response from server');
@@ -88,7 +89,7 @@ class ReportService {
           total: filteredReports.length,
         );
 
-        print('✅ Filtered reports count: ${filteredReports.length}');
+        print('Filtered reports count: ${filteredReports.length}');
 
         return ReportsResponse(
           success: reportsResponse.success,
@@ -98,11 +99,11 @@ class ReportService {
       } else if (response.statusCode == 401) {
         throw Exception('Unauthorized - Token invalid or expired');
       } else {
-        print('❌ Error response body: ${response.body}');
+        print('Error response body: ${response.body}');
         throw Exception('Failed to load reports: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      print('❌ Exception in getReports: $e');
+      print('Exception in getReports: $e');
       throw Exception('Unexpected error: $e');
     }
   }
@@ -113,12 +114,12 @@ class ReportService {
       final url = Uri.parse('$baseUrl/reports?page=$page&company_id=$companyId');
       final requestHeaders = await headers;
 
-      print('🌐 Making company-filtered request to: $url');
-      print('🏢 Company ID filter: $companyId');
+      print('Making company-filtered request to: $url');
+      print('Company ID filter: $companyId');
 
       final response = await http.get(url, headers: requestHeaders);
 
-      print('📡 Response status: ${response.statusCode}');
+      print('Response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         if (response.body.isEmpty) throw Exception('Empty response from server');
@@ -132,7 +133,7 @@ class ReportService {
             .where((report) => report.companyId == companyId)
             .toList();
 
-        print('✅ Company filtered reports count: ${filteredReports.length}');
+        print('Company filtered reports count: ${filteredReports.length}');
 
         // Create new ReportsData with filtered reports
         final filteredData = ReportsData(
@@ -161,7 +162,7 @@ class ReportService {
         throw Exception('Failed to load reports: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      print('❌ Exception in getReportsByCompany: $e');
+      print('Exception in getReportsByCompany: $e');
       throw Exception('Unexpected error: $e');
     }
   }
@@ -200,7 +201,7 @@ class ReportService {
     }
   }
 
-  // POST laporan dengan gambar (Multipart) - WAJIB validasi company_id
+  // POST laporan dengan gambar (Multipart) - WAJIB validasi company_id dengan kompresi gambar
   Future<ReportModel> createReportWithImage({
     required String area,
     required String informasi,
@@ -216,7 +217,7 @@ class ReportService {
 
       final finalNamaPengirim = namaPengirim ?? user['nama_pengirim'] ?? 'Unknown';
       final finalCompanyId = companyId ?? user['company_id'];
-      final finalRole = 'client'; // ⛔ Hardcoded role
+      final finalRole = 'client'; // Hardcoded role
 
       if (finalCompanyId == null) {
         throw Exception('Company ID is required. Please ensure you have selected a company.');
@@ -235,11 +236,24 @@ class ReportService {
       request.fields['company_id'] = finalCompanyId.toString();
       request.fields['role'] = finalRole;
 
-      print('📤 Creating report for Company ID: $finalCompanyId');
+      print('Creating report for Company ID: $finalCompanyId');
 
       if (imageFile != null && await imageFile.exists()) {
-        var imageStream = http.ByteStream(imageFile.openRead());
-        var imageLength = await imageFile.length();
+        // Compress image before upload
+        print('Compressing image...');
+        final compressedResult = await ImageService.compressToMax2MB(imageFile);
+
+        File? finalImageFile;
+        if (compressedResult is File) {
+          finalImageFile = compressedResult;
+          print('Image compressed successfully. Size: ${await finalImageFile.length()} bytes');
+        } else {
+          print('Image compression failed, using original file');
+          finalImageFile = imageFile;
+        }
+
+        var imageStream = http.ByteStream(finalImageFile.openRead());
+        var imageLength = await finalImageFile.length();
         var multipartFile = http.MultipartFile(
           'dokumentasi',
           imageStream,
@@ -263,7 +277,7 @@ class ReportService {
             throw Exception('Report created with wrong company ID');
           }
 
-          print('✅ Report created successfully for Company ID: ${createdReport.companyId}');
+          print('Report created successfully for Company ID: ${createdReport.companyId}');
           return createdReport;
         } else {
           throw Exception(jsonData['message'] ?? 'Failed to create report');
@@ -294,7 +308,7 @@ class ReportService {
 
       final finalNamaPengirim = namaPengirim ?? user['nama_pengirim'] ?? 'Unknown';
       final finalCompanyId = companyId ?? user['company_id'];
-      final finalRole = 'client'; // ⛔ Hardcoded role
+      final finalRole = 'client'; // Hardcoded role
 
       if (finalCompanyId == null) {
         throw Exception('Company ID is required. Please ensure you have selected a company.');
@@ -309,7 +323,7 @@ class ReportService {
         'role': finalRole,
       });
 
-      print('📤 Creating report for Company ID: $finalCompanyId');
+      print('Creating report for Company ID: $finalCompanyId');
 
       final response = await http.post(url, headers: requestHeaders, body: body);
 
@@ -324,7 +338,7 @@ class ReportService {
             throw Exception('Report created with wrong company ID');
           }
 
-          print('✅ Report created successfully for Company ID: ${createdReport.companyId}');
+          print('Report created successfully for Company ID: ${createdReport.companyId}');
           return createdReport;
         } else {
           throw Exception('Invalid response structure');
@@ -344,13 +358,13 @@ class ReportService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final companyId = prefs.getInt('companyid');
-      print('🐛 === COMPANY ID DEBUG ===');
-      print('🏢 Current Company ID: $companyId');
-      print('🔍 Type: ${companyId.runtimeType}');
-      print('✅ Is Valid: ${companyId != null && companyId > 0}');
+      print('=== COMPANY ID DEBUG ===');
+      print('Current Company ID: $companyId');
+      print('Type: ${companyId.runtimeType}');
+      print('Is Valid: ${companyId != null && companyId > 0}');
       print('========================');
     } catch (e) {
-      print('❌ Error debugging company ID: $e');
+      print('Error debugging company ID: $e');
     }
   }
 }
