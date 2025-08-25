@@ -38,6 +38,7 @@ class GroupedHistoryCard extends StatelessWidget {
         ),
         child: Column(
           children: [
+            // Header yang bisa diklik
             InkWell(
               onTap: () => isExpanded.toggle(),
               borderRadius: BorderRadius.circular(12.r),
@@ -111,6 +112,7 @@ class GroupedHistoryCard extends StatelessWidget {
                       child: AnimatedRotation(
                         turns: isExpanded.value ? 0.5 : 0,
                         duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
                         child: Icon(
                           Icons.keyboard_arrow_down_rounded,
                           size: 24.sp,
@@ -122,32 +124,57 @@ class GroupedHistoryCard extends StatelessWidget {
                 ),
               ),
             ),
+
+            // Divider dengan animasi
             AnimatedContainer(
               duration: Duration(milliseconds: 300),
-              height: 1,
-              color: isExpanded.value
-                  ? AppColor.ijomuda.withOpacity(0.3)
-                  : Colors.transparent,
+              curve: Curves.easeInOut,
+              height: isExpanded.value ? 1 : 0,
+              color: AppColor.ijomuda.withOpacity(0.3),
               margin: EdgeInsets.symmetric(horizontal: 16.w),
             ),
-            AnimatedCrossFade(
-              firstChild: SizedBox.shrink(),
-              secondChild: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                child: Column(
-                  children: List.generate(
-                    items.length,
-                        (index) => Padding(
-                      padding: EdgeInsets.only(bottom: 10.h),
-                      child: SingleHistoryCard(item: items[index]),
+
+            // Content dengan animasi slide down yang smooth
+            AnimatedContainer(
+              duration: Duration(milliseconds: 400),
+              curve: Curves.easeInOutCubic,
+              height: isExpanded.value ? null : 0,
+              child: AnimatedOpacity(
+                duration: Duration(milliseconds: 350),
+                curve: Curves.easeIn,
+                opacity: isExpanded.value ? 1.0 : 0.0,
+                child: ClipRRect(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                    child: Column(
+                      children: [
+                        // Animasi staggered untuk setiap item
+                        ...List.generate(
+                          items.length,
+                              (index) => AnimatedContainer(
+                            duration: Duration(milliseconds: 300 + (index * 50)),
+                            curve: Curves.easeOutQuart,
+                            transform: Matrix4.translationValues(
+                                0,
+                                isExpanded.value ? 0 : 20,
+                                0
+                            ),
+                            child: AnimatedOpacity(
+                              duration: Duration(milliseconds: 400 + (index * 100)),
+                              curve: Curves.easeOut,
+                              opacity: isExpanded.value ? 1.0 : 0.0,
+                              child: Padding(
+                                padding: EdgeInsets.only(bottom: 10.h),
+                                child: SingleHistoryCard(item: items[index]),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-              crossFadeState: isExpanded.value
-                  ? CrossFadeState.showSecond
-                  : CrossFadeState.showFirst,
-              duration: Duration(milliseconds: 250),
             ),
           ],
         ),
