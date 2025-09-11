@@ -461,6 +461,12 @@ class DetailDataController extends GetxController {
 
     if (confirm != true || startDate == null || endDate == null) return;
 
+    // Validasi company ID sebelum export
+    if (companyId.value <= 0) {
+      Get.snackbar("Error", "Company ID tidak valid. Silakan refresh halaman dan coba lagi.");
+      return;
+    }
+
     final startDateStr = startDate!.toIso8601String().split("T").first;
     final endDateStr = endDate!.toIso8601String().split("T").first;
 
@@ -468,7 +474,7 @@ class DetailDataController extends GetxController {
     try {
       isLoading.value = true;
       final file = await _pdfService.downloadPdf(
-        companyId: 9, // bisa diganti pakai companyId.value
+        companyId: companyId.value, // Gunakan companyId yang sebenarnya
         startDate: startDateStr,
         endDate: endDateStr,
         useDate: "created_at",
@@ -479,6 +485,9 @@ class DetailDataController extends GetxController {
       } else {
         Get.snackbar("Error", "Gagal export PDF");
       }
+    } catch (e) {
+      Get.snackbar("Error", "Gagal export PDF: ${e.toString()}");
+      print('Error exporting PDF: $e');
     } finally {
       isLoading.value = false;
     }
